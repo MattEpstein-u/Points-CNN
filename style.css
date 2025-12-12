@@ -29,3 +29,9 @@ canvas {
 #modelStructure {
     margin: 20px 0;
 }
+
+/* Hide the "Trainable" column (last column) in the model summary table */
+#modelStructure table th:last-child,
+#modelStructure table td:last-child {
+    display: none;
+}

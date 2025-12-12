@@ -146,14 +146,35 @@ document.addEventListener('DOMContentLoaded', () => {
         const valLabelTensor = tf.tensor2d(valLabels, [200, 1]);
 
         // Train
+        const history = [];
         await model.fit(trainTensor, trainLabelTensor, {
             epochs: 50,
             validationData: [valTensor, valLabelTensor],
-            callbacks: tfvis.show.fitCallbacks(
-                document.getElementById('trainingGraph'),
-                ['loss', 'val_loss'],
-                { height: 200, width: 800, callbacks: ['onEpochEnd'] }
-            )
+            callbacks: {
+                onEpochEnd: (epoch, logs) => {
+                    history.push({
+                        loss: logs.loss,
+                        val_loss: logs.val_loss,
+                        epoch: epoch
+                    });
+                    tfvis.render.linechart(
+                        document.getElementById('trainingGraph'),
+                        { 
+                            values: [
+                                history.map(h => ({x: h.epoch, y: h.loss})),
+                                history.map(h => ({x: h.epoch, y: h.val_loss}))
+                            ], 
+                            series: ['Training Loss', 'Validation Loss'] 
+                        },
+                        { 
+                            width: 800, 
+                            height: 200, 
+                            xLabel: 'Epoch', 
+                            yLabel: 'Loss'
+                        }
+                    );
+                }
+            }
         });
         
         trainTensor.dispose();
