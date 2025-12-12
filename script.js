@@ -10,13 +10,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const predictBtn = document.getElementById('predictBtn');
     const predictionContainer = document.getElementById('predictionContainer');
 
-    let images = [];
+    let dataset = [];
     let model;
-    const NUM_IMAGES = 1000;
+    const DATASET_SIZE = 1000;
     const GRID_SIZE = 24;
-    const NUM_DISPLAY_IMAGES = 6;
+    const PREVIEW_SIZE = 6;
 
-    function generateImage(allowOverlap) {
+    function generateSample(allowOverlap) {
         const grid = Array(GRID_SIZE).fill(0).map(() => Array(GRID_SIZE).fill(0));
         const numPoints = Math.floor(Math.random() * 9); // 0 to 8 points
         const points = [];
@@ -57,25 +57,25 @@ document.addEventListener('DOMContentLoaded', () => {
         return { grid, label: points.length };
     }
 
-    function generateAllImages() {
-        images = [];
+    function generateDataset() {
+        dataset = [];
         const allowOverlap = allowOverlapCheckbox.checked;
-        for (let i = 0; i < NUM_IMAGES; i++) {
-            images.push(generateImage(allowOverlap));
+        for (let i = 0; i < DATASET_SIZE; i++) {
+            dataset.push(generateSample(allowOverlap));
         }
-        totalImagesSpan.textContent = `(${images.length} total images)`;
-        displayImages();
+        totalImagesSpan.textContent = `(${dataset.length} samples generated)`;
+        renderDatasetPreview();
     }
 
-    function displayImages() {
+    function renderDatasetPreview() {
         imageContainer.innerHTML = '';
         const startIndex = parseInt(startIndexInput.value, 10);
 
-        for (let i = 0; i < NUM_DISPLAY_IMAGES; i++) {
+        for (let i = 0; i < PREVIEW_SIZE; i++) {
             const imageIndex = startIndex + i;
-            if (imageIndex >= images.length) break;
+            if (imageIndex >= dataset.length) break;
 
-            const grid = images[imageIndex].grid;
+            const grid = dataset[imageIndex].grid;
             const canvas = document.createElement('canvas');
             canvas.width = GRID_SIZE * 10;
             canvas.height = GRID_SIZE * 10;
@@ -121,7 +121,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     async function trainModel() {
-        if (images.length === 0) return;
+        if (dataset.length === 0) return;
         trainBtn.disabled = true;
         trainBtn.textContent = 'Training...';
         
@@ -132,8 +132,8 @@ document.addEventListener('DOMContentLoaded', () => {
         tfvis.show.modelSummary(modelStructureDiv, model);
 
         // Prepare data
-        const inputs = images.map(d => d.grid);
-        const labels = images.map(d => d.label);
+        const inputs = dataset.map(d => d.grid);
+        const labels = dataset.map(d => d.label);
 
         const trainInputs = inputs.slice(0, 800);
         const trainLabels = labels.slice(0, 800);
@@ -162,11 +162,11 @@ document.addEventListener('DOMContentLoaded', () => {
         valLabelTensor.dispose();
         
         trainBtn.disabled = false;
-        trainBtn.textContent = 'Train CNN';
+        trainBtn.textContent = 'Train Model';
         alert('Training Complete!');
     }
 
-    async function displayPredictions() {
+    async function renderTestPredictions() {
         if (!model) {
             alert('Please train the model first.');
             return;
@@ -174,8 +174,8 @@ document.addEventListener('DOMContentLoaded', () => {
         predictionContainer.innerHTML = '';
         const allowOverlap = allowOverlapCheckbox.checked;
         
-        for (let i = 0; i < NUM_DISPLAY_IMAGES; i++) {
-            const data = generateImage(allowOverlap);
+        for (let i = 0; i < PREVIEW_SIZE; i++) {
+            const data = generateSample(allowOverlap);
             const grid = data.grid;
             const actual = data.label;
 
@@ -213,11 +213,11 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    generateBtn.addEventListener('click', generateAllImages);
-    startIndexInput.addEventListener('change', displayImages);
+    generateBtn.addEventListener('click', generateDataset);
+    startIndexInput.addEventListener('change', renderDatasetPreview);
     trainBtn.addEventListener('click', trainModel);
-    predictBtn.addEventListener('click', displayPredictions);
+    predictBtn.addEventListener('click', renderTestPredictions);
     
     // Initial generation
-    generateAllImages();
+    generateDataset();
 });
