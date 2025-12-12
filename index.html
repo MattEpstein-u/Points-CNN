@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Generator</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-vis"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <h1>24x24 Image Generator</h1>
+    <div class="controls">
+        <label for="startIndex">Start Index:</label>
+        <input type="number" id="startIndex" value="0" min="0" max="994">
+        <label for="allowOverlap">Allow Overlap & Adjacency:</label>
+        <input type="checkbox" id="allowOverlap">
+        <button id="generateBtn">Generate Images</button>
+        <span id="totalImages"></span>
+    </div>
+    <div id="imageContainer" class="image-container"></div>
+
+    <hr>
+
+    <h2>CNN Training</h2>
+    <div class="controls">
+        <button id="trainBtn">Train CNN</button>
+        <div id="modelStructure"></div>
+    </div>
+    <div id="trainingGraph"></div>
+
+    <h2>Predictions</h2>
+    <div class="controls">
+        <button id="predictBtn">Predict on New Images</button>
+    </div>
+    <div id="predictionContainer" class="image-container"></div>
+
+    <script src="script.js"></script>
+</body>
+</html>
